@@ -1,0 +1,202 @@
+@model WebMkt.Models.Post
+
+@{
+    ViewData["Title"] = "Sửa Bài Viết";
+}
+
+<div class="row mt-4">
+    <div class="col-md-9">
+        <div class="card shadow-sm border-primary">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-pencil-square"></i> Cập nhật Nội dung Bài Viết
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" id="editForm">
+                    <div asp-validation-summary="All" class="text-danger mb-3 fw-bold"></div>
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label fw-bold">Tiêu đề</label>
+                        <input asp-for="Title" class="form-control" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Slug" class="form-label fw-bold">Đường dẫn tĩnh (Slug)</label>
+                        <input asp-for="Slug" class="form-control" id="postSlug" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label fw-bold">Chuyên mục</label>
+                        <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Content" class="form-label fw-bold">Nội dung bài viết <span class="text-muted small">(Bôi đen chữ và gọi AI Phụ tá bên phải để tự động sửa lỗi)</span></label>
+                        <textarea asp-for="Content" class="form-control" rows="15" id="mainContent"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MetaTitle" class="form-label">SEO Meta Title</label>
+                            <input asp-for="MetaTitle" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MetaKeywords" class="form-label">SEO Meta Keywords</label>
+                            <input asp-for="MetaKeywords" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MetaDescription" class="form-label">SEO Meta Description</label>
+                        <textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="SchemaMarkup" class="form-label">Schema Markup (JSON-LD)</label>
+                        <textarea asp-for="SchemaMarkup" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ThumbnailUrl" class="form-label">Đường dẫn Hình ảnh (Thumbnail Url)</label>
+                        <input asp-for="ThumbnailUrl" class="form-control" id="thumbnailUrlInput" />
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input asp-for="IsPublished" class="form-check-input" />
+                        <label asp-for="IsPublished" class="form-check-label fw-bold text-success">Đăng bài xuất bản</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg px-5"><i class="bi bi-save"></i> Lưu Bài Viết</button>
+                    <a asp-action="Index" class="btn btn-secondary btn-lg">Hủy bỏ</a>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card shadow-sm border-warning mb-4">
+            <div class="card-header bg-warning text-dark fw-bold">
+                <i class="bi bi-stars"></i> Trợ lý Vẽ Ảnh AI
+            </div>
+            <div class="card-body">
+                <p class="small text-muted">Tự động vẽ ảnh Thumbnail độc quyền cho bài viết bằng Pollinations AI.</p>
+                
+                <div class="text-center mb-3">
+                    <img id="imgPreview" src="@(!string.IsNullOrEmpty(Model.ThumbnailUrl) ? Model.ThumbnailUrl : "https://via.placeholder.com/300x200.png?text=No+Image")" class="img-fluid rounded border" alt="Thumbnail Preview" />
+                </div>
+
+                <button type="button" class="btn btn-warning w-100 fw-bold" id="btnGenImage">
+                    <i class="bi bi-image"></i> Sinh Ảnh Bằng AI
+                </button>
+                <div id="imgLoader" class="text-center mt-2 d-none">
+                    <div class="spinner-border text-warning spinner-border-sm" role="status"></div>
+                    <span class="small text-muted">Đang vẽ ảnh...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-info">
+            <div class="card-header bg-info text-white fw-bold">
+                <i class="bi bi-magic"></i> Trợ Lý Sửa Bài AI
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-2"><strong>Cách hoạt động:</strong> Bôi đen một đoạn bên ô Nội Dung hoặc không bôi đen (Để sửa toàn bộ nội dung). Sau đó nhập yêu cầu vào đây.</p>
+                <textarea id="aiInstruction" class="form-control mb-3" rows="3" placeholder="Ví dụ: Dịch sang tiếng Anh, Sửa lỗi chính tả đoạn này, Viết cho chuyên nghiệp hơn..."></textarea>
+                
+                <button type="button" class="btn btn-info text-white w-100 fw-bold" id="btnAIEdit">
+                    <i class="bi bi-pen"></i> Chạy AI Thay Cốt
+                </button>
+                
+                <div id="aiLoader" class="d-none mt-3">
+                    <div class="spinner-border text-info spinner-border-sm" role="status"></div>
+                    <span class="small text-muted ms-1">Trợ lý AI đang suy nghĩ...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // AI Image Generation
+        document.getElementById('btnGenImage').addEventListener('click', async function() {
+            const title = document.getElementById('Title').value;
+            const slug = document.getElementById('postSlug').value;
+            if (!title) return alert("Vui lòng nhập Title trước!");
+
+            this.disabled = true;
+            document.getElementById('imgLoader').classList.remove('d-none');
+
+            try {
+                const res = await fetch('/AdminPosts/AjaxGenerateImageForPost', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ keyword: title, slug: slug })
+                }).then(r => r.json());
+
+                if (res.success) {
+                    document.getElementById('thumbnailUrlInput').value = res.url;
+                    document.getElementById('imgPreview').src = res.url;
+                } else {
+                    alert("Lỗi tạo ảnh: " + res.message);
+                }
+            } catch (e) {
+                alert("Lỗi gọi Server!");
+            }
+
+            this.disabled = false;
+            document.getElementById('imgLoader').classList.add('d-none');
+        });
+
+        // AI Text Edit
+        document.getElementById('btnAIEdit').addEventListener('click', async function() {
+            const instruction = document.getElementById('aiInstruction').value;
+            if (!instruction) return alert("Vui lòng nhập yêu cầu cho AI (VD: Sửa lỗi chính tả)!");
+
+            const textArea = document.getElementById('mainContent');
+            const start = textArea.selectionStart;
+            const end = textArea.selectionEnd;
+            const hasSelection = (start !== end);
+            
+            let contentToEdit = "";
+            if (hasSelection) {
+                contentToEdit = textArea.value.substring(start, end);
+            } else {
+                contentToEdit = textArea.value;
+            }
+
+            if (!contentToEdit.trim()) return alert("Không có chữ nào để AI phân tích!");
+
+            this.disabled = true;
+            document.getElementById('aiLoader').classList.remove('d-none');
+
+            try {
+                const res = await fetch('/AdminPosts/AiRewriteContent', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({ content: contentToEdit, instruction: instruction })
+                }).then(r => r.json());
+
+                if (res.success) {
+                    if (hasSelection) {
+                        // Thay thế phần bôi đen
+                        textArea.value = textArea.value.substring(0, start) + res.data + textArea.value.substring(end);
+                    } else {
+                        // Thay thế toàn bộ
+                        textArea.value = res.data;
+                    }
+                    // Flash success
+                    document.getElementById('aiInstruction').value = '';
+                    alert("Trợ lý AI đã hoàn tất!");
+                } else {
+                    alert("AI gãy: " + res.message);
+                }
+            } catch (e) {
+                alert("Server Error: Lỗi đường truyền!");
+            }
+
+            this.disabled = false;
+            document.getElementById('aiLoader').classList.add('d-none');
+        });
+    </script>
+}

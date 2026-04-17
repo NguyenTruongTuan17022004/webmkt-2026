@@ -1,0 +1,192 @@
+@{
+    ViewData["Title"] = "Viết Bài Hàng Loạt Bằng AI";
+}
+
+<div class="row mt-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm border-primary">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-stack"></i> Cấu Hình Chạy Hàng Loạt
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Danh sách Từ khóa (Mỗi dòng 1 từ khóa)</label>
+                    <textarea id="bulkKeywords" class="form-control" rows="8" placeholder="Cách SEO Youtube hiệu quả&#10;Kiếm tiền online 2024&#10;Marketing Đa kênh là gì"></textarea>
+                    <small class="text-muted">Nhập tối đa 20 từ khóa một lần để tránh quá tải trình duyệt.</small>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Giọng văn (Tone)</label>
+                    <select id="aiTone" class="form-select">
+                        <option value="Professional">Chuyên nghiệp / Uy tín</option>
+                        <option value="Engaging">Thu hút / Storytelling</option>
+                        <option value="Informational">Cung cấp thông tin chi tiết</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Xếp vào Chuyên mục chung</label>
+                    <select id="CategoryId" class="form-select" asp-items="ViewBag.CategoryId"></select>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" id="IsPublished">
+                    <label class="form-check-label text-danger fw-bold" for="IsPublished">
+                        Xuất bản (Publish) ngay lập tức
+                    </label>
+                    <div class="form-text">Nếu không chọn, bài viết sẽ lưu thành Bản nháp.</div>
+                </div>
+
+                <button id="btnStartBulk" class="btn btn-primary w-100 btn-lg">
+                    <i class="bi bi-play-circle"></i> Bắt Đầu Viết Hàng Loạt
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <i class="bi bi-terminal"></i> Tiến độ Thực Thi (Tiến trình chạy nền)
+            </div>
+            <div class="card-body bg-light">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="fw-bold" id="progressText">Hoàn thành: 0 / 0</span>
+                        <span class="fw-bold" id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <div class="log-container rounded border bg-white p-3" style="height: 400px; overflow-y: auto;">
+                    <ul id="bulkLog" class="list-unstyled mb-0" style="font-family: Consolas, monospace; font-size: 0.9em;">
+                        <li class="text-muted">Hệ thống đang chờ chạy...</li>
+                    </ul>
+                </div>
+                
+                <div class="mt-3 text-end d-none" id="btnFinishContainer">
+                    <a href="/AdminPosts" class="btn btn-success fw-bold"><i class="bi bi-check-circle"></i> Về trang Quản lý bài viết</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function addLog(message, type = 'info') {
+            const ul = document.getElementById('bulkLog');
+            const li = document.createElement('li');
+            li.className = 'mb-1';
+            
+            const time = new Date().toLocaleTimeString();
+            let icon = '🔹';
+            let color = 'text-dark';
+
+            if (type === 'success') { icon = '✅'; color = 'text-success'; }
+            if (type === 'error') { icon = '❌'; color = 'text-danger'; }
+            if (type === 'warning') { icon = '⏳'; color = 'text-primary'; }
+
+            li.innerHTML = `<span class="text-muted">[${time}]</span> ${icon} <span class="${color}">${message}</span>`;
+            ul.appendChild(li);
+            ul.parentElement.scrollTop = ul.parentElement.scrollHeight;
+        }
+
+        document.getElementById('btnStartBulk').addEventListener('click', async function () {
+            const keywordsText = document.getElementById('bulkKeywords').value;
+            const keywords = keywordsText.split('\n').map(k => k.trim()).filter(k => k.length > 0);
+            
+            if (keywords.length === 0) {
+                alert("Vui lòng nhập ít nhất một từ khóa!");
+                return;
+            }
+
+            // Lock UI
+            this.disabled = true;
+            document.getElementById('bulkKeywords').disabled = true;
+            const tone = document.getElementById('aiTone').value;
+            const categoryId = document.getElementById('CategoryId').value;
+            const isPublished = document.getElementById('IsPublished').checked;
+            
+            // Setup Progress
+            document.getElementById('bulkLog').innerHTML = '';
+            addLog(`Đã quét thấy ${keywords.length} từ khóa. Chuẩn bị chạy tự động...`, 'info');
+            
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (let i = 0; i < keywords.length; i++) {
+                const kw = keywords[i];
+                addLog(`Đang gửi yêu cầu vào mô hình AI cho từ khóa: <b>"${kw}"</b>...`, 'warning');
+                
+                try {
+                    // Bước 1: Gọi AI sinh bài (Bỏ qua Outline)
+                    const genRes = await fetch('/AdminPosts/GenerateWithAi', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({ keyword: kw, tone: tone })
+                    });
+                    const genData = await genRes.json();
+
+                    if (!genData.success) {
+                        throw new Error("Lỗi gọi AI: " + genData.message);
+                    }
+
+                    const aiPost = genData.data;
+                    const schemaStr = typeof aiPost.schemaMarkup === 'string' ? aiPost.schemaMarkup : (aiPost.schemaMarkup ? JSON.stringify(aiPost.schemaMarkup) : '');
+
+                    // Bước 2: Lưu post tự động
+                    if (aiPost.thumbnailUrl) {
+                        addLog(`🎨 Đã tải xong ảnh minh họa gốc...`, 'success');
+                    }
+                    addLog(`AI đã sinh xong nội dung cho <b>"${kw}"</b>. Đang lưu vào CSDL...`, 'warning');
+
+                    const saveRes = await fetch('/AdminPosts/AutoSaveAiPost', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: new URLSearchParams({
+                            Title: aiPost.title || kw,
+                            Content: aiPost.content || '',
+                            MetaDescription: aiPost.metaDescription || '',
+                            MetaKeywords: aiPost.metaKeywords || '',
+                            Slug: aiPost.slug || '',
+                            SchemaMarkup: schemaStr,
+                            ThumbnailUrl: aiPost.thumbnailUrl || '',
+                            CategoryId: categoryId || '0',
+                            IsPublished: isPublished
+                        })
+                    });
+                    const saveData = await saveRes.json();
+
+                    if (!saveData.success) {
+                        throw new Error("Lỗi khi lưu DB: " + saveData.message);
+                    }
+
+                    successCount++;
+                    addLog(`Đã lưu thành công bài viết: <b>${saveData.title}</b> (ID: ${saveData.postId})`, 'success');
+
+                } catch (err) {
+                    errorCount++;
+                    addLog(`Thất bại với từ khóa <b>"${kw}"</b>: ${err.message}`, 'error');
+                }
+
+                // Cập nhật Progress Bar
+                const currentComplete = i + 1;
+                const percent = Math.round((currentComplete / keywords.length) * 100);
+                
+                document.getElementById('progressText').innerText = `Hoàn thành: ${currentComplete} / ${keywords.length}`;
+                document.getElementById('progressPercent').innerText = `${percent}%`;
+                document.getElementById('progressBar').style.width = `${percent}%`;
+            }
+
+            addLog(`===============================`, 'info');
+            addLog(`HOÀN TẤT CHIẾN DỊCH HÀNG LOẠT!`, 'info');
+            addLog(`Tổng thành công: ${successCount} bài. Lỗi: ${errorCount} bài.`, successCount > 0 ? 'success' : 'error');
+            
+            document.getElementById('btnFinishContainer').classList.remove('d-none');
+            this.innerText = "Đã chạy xong";
+        });
+    </script>
+}

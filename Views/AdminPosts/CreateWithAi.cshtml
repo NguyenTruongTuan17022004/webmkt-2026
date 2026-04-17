@@ -1,0 +1,310 @@
+@model WebMkt.Models.Post
+
+@{
+    ViewData["Title"] = "Create Post with AI";
+}
+
+<div class="row mt-4">
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-robot"></i> Trợ lý AI Viết Bài
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">Từ khóa chính / Chủ đề</label>
+                    <input type="text" id="aiKeyword" class="form-control" placeholder="Ví dụ: Lợi ích của Marketing Đa phương tiện" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Giọng văn (Tone)</label>
+                    <select id="aiTone" class="form-select">
+                        <option value="Professional">Chuyên nghiệp</option>
+                        <option value="Engaging">Thu hút, lôi cuốn</option>
+                        <option value="Informational">Cung cấp thông tin</option>
+                        <option value="Humorous">Hài hước</option>
+                    </select>
+                </div>
+                <button type="button" id="btnGenerateOutline" class="btn btn-outline-primary w-100">
+                    <span id="btnOutlineText">Bước 1: Lên Dàn Ý (AI)</span>
+                    <span id="btnOutlineLoading" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
+
+                <div id="outlineContainer" class="mt-3 d-none">
+                    <label class="form-label text-success fw-bold">Dàn ý (Bạn có thể thêm/bớt)</label>
+                    <textarea id="aiOutline" class="form-control mb-2" rows="6" placeholder="Dàn ý sẽ hiện ra ở đây..."></textarea>
+                    <button type="button" id="btnGenerateContent" class="btn btn-primary w-100">
+                        <span id="btnContentText">Bước 2: Viết Bài từ Dàn ý (AI)</span>
+                        <span id="btnContentLoading" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    </button>
+                </div>
+
+                <div id="aiMessage" class="mt-2 text-danger"></div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-4 border-warning">
+            <div class="card-header bg-warning text-dark">
+                <i class="bi bi-link-45deg"></i> Viết bài từ Link Đối Thủ
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label">URL đối thủ</label>
+                    <input type="url" id="aiCompetitorUrl" class="form-control" placeholder="https://" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Yêu cầu Rewrite</label>
+                    <textarea id="aiUrlInstruction" class="form-control" rows="4">Viết lại bài đối thủ thành một bài độc đáo, chuẩn SEO, dễ đọc, giữ ý chính nhưng đổi cấu trúc và văn phong.</textarea>
+                </div>
+                <button type="button" id="btnGenerateFromUrl" class="btn btn-outline-warning w-100">
+                    <span id="btnUrlText">Bước 3: Scrape &amp; Rewrite</span>
+                    <span id="btnUrlLoading" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="urlAiMessage" class="mt-2 text-danger"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                Chi tiết bài viết
+            </div>
+            <div class="card-body">
+                <form asp-action="Create">
+                    <div asp-validation-summary="All" class="text-danger mb-3 fw-bold"></div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label">Tiêu đề</label>
+                        <input asp-for="Title" class="form-control" id="postTitle" />
+                        <span asp-validation-for="Title" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Slug" class="form-label">Đường dẫn tĩnh (Slug)</label>
+                        <input asp-for="Slug" class="form-control" id="postSlug" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="CategoryId" class="form-label">Chuyên mục</label>
+                        <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Content" class="form-label">Nội dung bài viết</label>
+                        <textarea asp-for="Content" class="form-control" rows="10" id="postContent"></textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MetaTitle" class="form-label">SEO Meta Title</label>
+                            <input asp-for="MetaTitle" class="form-control" id="postMetaTitle" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="MetaKeywords" class="form-label">SEO Meta Keywords</label>
+                            <input asp-for="MetaKeywords" class="form-control" id="postMetaKeywords" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MetaDescription" class="form-label">SEO Meta Description</label>
+                        <textarea asp-for="MetaDescription" class="form-control" rows="3" id="postMetaDesc"></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="SchemaMarkup" class="form-label">Schema Markup (JSON-LD)</label>
+                        <textarea asp-for="SchemaMarkup" class="form-control" rows="4" id="postSchema"></textarea>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input asp-for="IsPublished" class="form-check-input" />
+                        <label asp-for="IsPublished" class="form-check-label">Đăng bài ngay lập tức</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Lưu bài viết</button>
+                    <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('btnGenerateOutline').addEventListener('click', function () {
+            var keyword = document.getElementById('aiKeyword').value;
+            var tone = document.getElementById('aiTone').value;
+            var btnLoading = document.getElementById('btnOutlineLoading');
+            var btnText = document.getElementById('btnOutlineText');
+            var aiMessage = document.getElementById('aiMessage');
+            var outlineContainer = document.getElementById('outlineContainer');
+
+            if (!keyword) {
+                aiMessage.innerText = "Vui lòng nhập từ khóa!";
+                aiMessage.className = "mt-2 text-danger";
+                return;
+            }
+
+            aiMessage.innerText = "Trí tuệ nhân tạo đang phân tích để lên Dàn Ý... Vui lòng đợi.";
+            aiMessage.className = "mt-2 text-info";
+            btnLoading.classList.remove('d-none');
+            btnText.innerText = "Đang tạo dàn ý...";
+            this.disabled = true;
+
+            fetch('/AdminPosts/GenerateOutlineWithAi', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'keyword': keyword,
+                    'tone': tone
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if(result.success) {
+                    document.getElementById('aiOutline').value = result.data || '';
+                    outlineContainer.classList.remove('d-none');
+                    aiMessage.innerText = "Hoàn tất dàn ý! Hãy kiểm tra và ấn Bước 2 để viết bài.";
+                    aiMessage.className = "mt-2 text-success";
+                } else {
+                    aiMessage.innerText = "Lỗi: " + result.message;
+                    aiMessage.className = "mt-2 text-danger";
+                }
+            })
+            .catch(error => {
+                aiMessage.innerText = "Có lỗi xảy ra khi kết nối server.";
+                aiMessage.className = "mt-2 text-danger";
+            })
+            .finally(() => {
+                btnLoading.classList.add('d-none');
+                btnText.innerText = "Bước 1: Lên Dàn Ý (AI)";
+                document.getElementById('btnGenerateOutline').disabled = false;
+            });
+        });
+
+        document.getElementById('btnGenerateContent').addEventListener('click', function () {
+            var keyword = document.getElementById('aiKeyword').value;
+            var tone = document.getElementById('aiTone').value;
+            var outline = document.getElementById('aiOutline').value;
+            
+            var btnLoading = document.getElementById('btnContentLoading');
+            var btnText = document.getElementById('btnContentText');
+            var aiMessage = document.getElementById('aiMessage');
+
+            if (!outline) {
+                aiMessage.innerText = "Vui lòng nhập Dàn ý trước khi viết bài!";
+                aiMessage.className = "mt-2 text-danger";
+                return;
+            }
+
+            aiMessage.innerText = "AI đang viết bài dựa trên Dàn Ý... Sẽ mất khoảng 10-30 giây.";
+            aiMessage.className = "mt-2 text-info";
+            btnLoading.classList.remove('d-none');
+            btnText.innerText = "Đang viết bài...";
+            this.disabled = true;
+
+            fetch('/AdminPosts/GenerateArticleFromOutlineWithAi', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'keyword': keyword,
+                    'tone': tone,
+                    'outline': outline
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if(result.success) {
+                    var data = result.data;
+                    document.getElementById('postTitle').value = data.title || '';
+                    document.getElementById('postSlug').value = data.slug || '';
+                    document.getElementById('postContent').value = data.content || '';
+                    document.getElementById('postMetaTitle').value = data.title || '';
+                    document.getElementById('postMetaKeywords').value = data.metaKeywords || '';
+                    document.getElementById('postMetaDesc').value = data.metaDescription || '';
+                    
+                    var schemaData = data.schemaMarkup;
+                    document.getElementById('postSchema').value = typeof schemaData === 'string' ? schemaData : (schemaData ? JSON.stringify(schemaData, null, 2) : '');
+                    
+                    aiMessage.innerText = "Tuyệt vời! AI đã viết xong, bạn có thể kiểm tra ở mục bên phải.";
+                    aiMessage.className = "mt-2 text-success";
+                } else {
+                    aiMessage.innerText = "Lỗi: " + result.message;
+                    aiMessage.className = "mt-2 text-danger";
+                }
+            })
+            .catch(error => {
+                aiMessage.innerText = "Có lỗi xảy ra khi kết nối server.";
+                aiMessage.className = "mt-2 text-danger";
+            })
+            .finally(() => {
+                btnLoading.classList.add('d-none');
+                btnText.innerText = "Bước 2: Viết Bài từ Dàn ý (AI)";
+                document.getElementById('btnGenerateContent').disabled = false;
+            });
+        });
+
+        document.getElementById('btnGenerateFromUrl').addEventListener('click', function () {
+            var url = document.getElementById('aiCompetitorUrl').value;
+            var tone = document.getElementById('aiTone').value;
+            var instruction = document.getElementById('aiUrlInstruction').value;
+            var btnLoading = document.getElementById('btnUrlLoading');
+            var btnText = document.getElementById('btnUrlText');
+            var aiMessage = document.getElementById('urlAiMessage');
+
+            if (!url) {
+                aiMessage.innerText = "Vui lòng nhập URL đối thủ!";
+                aiMessage.className = "mt-2 text-danger";
+                return;
+            }
+
+            aiMessage.innerText = "Đang thu thập và viết lại nội dung từ URL đối thủ...";
+            aiMessage.className = "mt-2 text-info";
+            btnLoading.classList.remove('d-none');
+            btnText.innerText = "Đang xử lý...";
+            this.disabled = true;
+
+            fetch('/AdminPosts/GenerateArticleFromUrlWithAi', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'url': url,
+                    'tone': tone,
+                    'instruction': instruction
+                })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    var data = result.data;
+                    document.getElementById('postTitle').value = data.title || '';
+                    document.getElementById('postSlug').value = data.slug || '';
+                    document.getElementById('postContent').value = data.content || '';
+                    document.getElementById('postMetaTitle').value = data.title || '';
+                    document.getElementById('postMetaKeywords').value = data.metaKeywords || '';
+                    document.getElementById('postMetaDesc').value = data.metaDescription || '';
+                    document.getElementById('postSchema').value = typeof data.schemaMarkup === 'string' ? data.schemaMarkup : (data.schemaMarkup ? JSON.stringify(data.schemaMarkup, null, 2) : '');
+                    aiMessage.innerText = "Hoàn tất! Bài viết đã được tạo từ link đối thủ và có thể chỉnh sửa thêm.";
+                    aiMessage.className = "mt-2 text-success";
+                } else {
+                    aiMessage.innerText = "Lỗi: " + result.message;
+                    aiMessage.className = "mt-2 text-danger";
+                }
+            })
+            .catch(error => {
+                aiMessage.innerText = "Có lỗi xảy ra khi kết nối server.";
+                aiMessage.className = "mt-2 text-danger";
+            })
+            .finally(() => {
+                btnLoading.classList.add('d-none');
+                btnText.innerText = "Bước 3: Scrape & Rewrite";
+                document.getElementById('btnGenerateFromUrl').disabled = false;
+            });
+        });
+    </script>
+}

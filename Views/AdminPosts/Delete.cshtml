@@ -1,0 +1,39 @@
+@model WebMkt.Models.Post
+
+@{
+    ViewData["Title"] = "Xóa Bài Viết";
+}
+
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white">
+                <i class="bi bi-exclamation-triangle"></i> Xác nhận Xóa
+            </div>
+            <div class="card-body">
+                <h4 class="text-danger">Bạn có chắc chắn muốn xóa bài viết này không?</h4>
+                <p>Hành động này không thể hoàn tác.</p>
+
+                <dl class="row mt-4">
+                    <dt class="col-sm-3">Tiêu đề</dt>
+                    <dd class="col-sm-9">@Model.Title</dd>
+
+                    <dt class="col-sm-3">Chuyên mục</dt>
+                    <dd class="col-sm-9">@(Model.Category?.Name ?? "Chưa có")</dd>
+
+                    <dt class="col-sm-3">Ngày tạo</dt>
+                    <dd class="col-sm-9">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                    <dt class="col-sm-3">Trạng thái</dt>
+                    <dd class="col-sm-9">@(Model.IsPublished ? "Đã đăng" : "Nháp")</dd>
+                </dl>
+
+                <form asp-action="Delete" class="mt-4">
+                    <input type="hidden" asp-for="Id" />
+                    <button type="submit" class="btn btn-danger">Đồng ý Xóa</button>
+                    <a asp-action="Index" class="btn btn-secondary">Hủy bỏ</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,37 @@
+@model WebMkt.Models.Post
+
+@{
+    ViewData["Title"] = Model.MetaTitle ?? Model.Title;
+    ViewData["Description"] = Model.MetaDescription;
+}
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="mb-3 text-muted">
+            <a asp-controller="Home" asp-action="Index">&larr; Quay về danh sách bài viết</a>
+        </div>
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h1 class="display-5">@Model.Title</h1>
+                <p class="text-muted mb-4">Cập nhật: @Model.CreatedAt.ToString("dd/MM/yyyy") | Chuyên mục: @Model.Category?.Name</p>
+                @if (!string.IsNullOrWhiteSpace(Model.ThumbnailUrl))
+                {
+                    <img src="@Model.ThumbnailUrl" class="img-fluid rounded mb-4" alt="@Model.Title" />
+                }
+                <div class="lh-lg">
+                    @Html.Raw(Model.Content)
+                </div>
+                @if (!string.IsNullOrWhiteSpace(ViewBag.GoogleLeadMagnetHtml as string))
+                {
+                    <div class="mt-5 p-4 rounded border bg-light">
+                        @Html.Raw(ViewBag.GoogleLeadMagnetHtml)
+                    </div>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.SchemaMarkup))
+                {
+                    @Html.Raw(Model.SchemaMarkup)
+                }
+            </div>
+        </div>
+    </div>
+</div>
