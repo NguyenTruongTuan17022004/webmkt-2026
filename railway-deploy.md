@@ -41,6 +41,13 @@ https://webmkt-2026.up.railway.app
 - ✅ Unlimited bandwidth
 - ✅ Custom domains (có phí)
 
+## ✅ Project Compatibility:
+- ✅ .NET 8.0 (đã được downgrade từ .NET 10.0)
+- ✅ ASP.NET Core MVC
+- ✅ Entity Framework Core
+- ✅ SQLite/PostgreSQL support
+- ✅ Docker ready
+
 ## 🔧 Troubleshooting:
 - Nếu build fail: Check Railway logs
 - Nếu runtime error: Check environment variables
