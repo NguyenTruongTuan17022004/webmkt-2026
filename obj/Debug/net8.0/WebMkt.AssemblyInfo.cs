@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WebMkt")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9aafa1aabcae669c6b757ac8c6a3ec5be989c0bc")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+66b27f3c1d966ccf23ae52c5f7249ebf7464abb4")]
 [assembly: System.Reflection.AssemblyProductAttribute("WebMkt")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WebMkt")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
