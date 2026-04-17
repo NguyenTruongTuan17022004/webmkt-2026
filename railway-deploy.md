@@ -20,7 +20,16 @@ git push -u origin main
 5. **Chọn Repo**: Tìm và chọn `webmkt-2026`
 6. **Deploy**: Click "Deploy" - Railway sẽ tự động detect .NET và build
 
-## Bước 3: Cấu hình Database (Tùy chọn)
+## Bước 3: Cấu hình Environment Variables
+Sau khi deploy thành công, cần thêm các API keys:
+
+1. Trong Railway dashboard → Variables (tab)
+2. Thêm các biến sau:
+   - Key: `GEMINI_API_KEY` | Value: [your Gemini API key]
+   - Key: `OPENAI_API_KEY` | Value: [your OpenAI API key]
+   - Key: `ASPNETCORE_ENVIRONMENT` | Value: `Production`
+
+## Bước 4: Cấu hình Database (Tùy chọn)
 Railway có thể tự động tạo PostgreSQL database miễn phí:
 1. Trong Railway dashboard → Add → Database → PostgreSQL
 2. Copy connection string
@@ -28,11 +37,16 @@ Railway có thể tự động tạo PostgreSQL database miễn phí:
    - Key: `DATABASE_URL`
    - Value: connection string từ Railway
 
-## Bước 4: Truy cập Website
+## Bước 5: Truy cập Website
 Sau khi deploy thành công, Railway sẽ cung cấp URL:
 ```
 https://webmkt-2026.up.railway.app
 ```
+
+## Bước 6: Test AI Features
+1. Truy cập `/AdminPosts/CreateWithAi` để test tạo bài viết với AI
+2. Truy cập `/AdminPosts/BulkCreateWithAi` để test tạo nhiều bài cùng lúc
+3. API endpoint: `/api/Ai/write-from-url` để scrape và rewrite content
 
 ## 🎯 Railway Free Tier Limits:
 - ✅ 512MB RAM
