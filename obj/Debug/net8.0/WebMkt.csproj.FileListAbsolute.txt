@@ -1,0 +1,11 @@
+C:\Users\tuans\OneDrive\Máy tính\WebMkt\obj\Debug\net8.0\WebMkt.csproj.AssemblyReference.cache
+C:\Users\tuans\OneDrive\Máy tính\WebMkt\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\tuans\OneDrive\Máy tính\WebMkt\obj\Debug\net8.0\WebMkt.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\tuans\OneDrive\Máy tính\WebMkt\obj\Debug\net8.0\WebMkt.AssemblyInfoInputs.cache
+C:\Users\tuans\OneDrive\Máy tính\WebMkt\obj\Debug\net8.0\WebMkt.AssemblyInfo.cs
+C:\Users\tuans\OneDrive\Máy tính\WebMkt\obj\Debug\net8.0\WebMkt.csproj.CoreCompileInputs.cache
+C:\Users\tuans\OneDrive\Máy tính\WebMkt\obj\Debug\net8.0\WebMkt.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\tuans\OneDrive\Máy tính\WebMkt\obj\Debug\net8.0\WebMkt.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\tuans\OneDrive\Máy tính\WebMkt\obj\Debug\net8.0\WebMkt.RazorAssemblyInfo.cache
+C:\Users\tuans\OneDrive\Máy tính\WebMkt\obj\Debug\net8.0\WebMkt.RazorAssemblyInfo.cs
+C:\Users\tuans\OneDrive\Máy tính\WebMkt\obj\Debug\net8.0\WebMkt.sourcelink.json
