@@ -47,6 +47,7 @@ https://webmkt-2026.up.railway.app
 - ✅ Entity Framework Core
 - ✅ SQLite/PostgreSQL support
 - ✅ Docker ready
+- ✅ Static assets compatibility fixed
 
 ## 🔧 Troubleshooting:
 - Nếu build fail: Check Railway logs
